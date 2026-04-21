@@ -1,0 +1,46 @@
+# --- Virtual Environments ---
+# Standard names for virtual environments
+venv/
+.venv/
+env/
+.env/
+ENV/
+bin/
+lib/
+include/
+
+# --- Python Cache ---
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Distribution / Packaging ---
+# Folders created when building packages
+dist/
+build/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Environment Variables ---
+# Secrets and local config (NEVER commit these)
+.env
+.flaskenv
+
+# --- IDE Settings ---
+# Visual Studio Code
+.vscode/
+# PyCharm / IntelliJ
+.idea/
+
+# --- Unit testing / Coverage ---
+.tox/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# --- OS generated files ---
+.DS_Store
+Thumbs.db
