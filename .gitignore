@@ -9,6 +9,9 @@ bin/
 lib/
 include/
 
+# --- Unit testing / Coverage ---
+alembic.ini
+
 # --- Python Cache ---
 # Byte-compiled / optimized / DLL files
 __pycache__/
