@@ -10,5 +10,15 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # We use 'db' (the service name) instead of 'localhost'
+      - DATABASE_URL=postgresql+asyncpg://user:pass@db:5432/dbname
+    depends_on:
+      - db
+
 volumes:
   postgres_data:
