@@ -3,7 +3,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.models.session import get_session
 from backend.models.item import Item
 from backend.crud import item as crud_item
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(title="Fastapi AI Backend")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"], # React default port
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+
 
 @app.get("/health")
 def health_check():
