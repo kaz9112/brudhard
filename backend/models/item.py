@@ -7,7 +7,7 @@ class Item(SQLModel, table=True):
     description: Optional[str] = None
     
     # Relationship to link back to QuestionAnswer
-    questions: List["QuestionAnswer"] = Relationship(back_populates="item")
+    questions: list["QuestionAnswer"] = Relationship(back_populates="item")
 
 class QuestionAnswer(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
