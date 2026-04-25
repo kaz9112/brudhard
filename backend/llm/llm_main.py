@@ -3,8 +3,11 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 from agents import call_model
 
 def build_graph():
+    # Define Node
     workflow = StateGraph(MessagesState)
     workflow.add_node("agent", call_model)
+
+    # Define Edge
     workflow.add_edge(START, "agent")
     workflow.add_edge("agent", END)
     return workflow.compile()

@@ -1,4 +1,5 @@
 import asyncio
+import pgvector.sqlalchemy
 from logging.config import fileConfig
 
 from sqlalchemy import pool
@@ -8,6 +9,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from backend.models.session import SQLModel
 from backend.models.item import Item
 from alembic import context
+import pgvector.sqlalchemy
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
