@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.models.session import get_session
-from backend.models.item import Item, QuestionAnswer
+from backend.models.item import *
 from backend.crud import item as crud_item
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -24,24 +24,23 @@ def health_check():
 # async def test_db(sesion=Depends(get_session)):
 #     return {"message": "Database session injected!"}
 
-@app.post("/items", response_model=Item)
-async def create_new_item(item: Item, db: AsyncSession = Depends(get_session)):
+@app.post("/items", response_model=ItemRead)
+async def create_new_item(item: ItemCreate, db: AsyncSession = Depends(get_session)):
     return await crud_item.create_item(db, item)
 
-@app.get("/items", response_model=list[Item])
+@app.get("/items", response_model=list[ItemRead])
 async def read_items(db: AsyncSession = Depends(get_session)):
     return await crud_item.get_items(db)
 
-@app.post("/items/{item_id}/questions", response_model=QuestionAnswer)
+@app.post("/items/{item_id}/questions", response_model=QuestionAnswerRead)
 async def create_new_question(
-    item_id: int,
-    qa_data: QuestionAnswer,
-    db: AsyncSession = Depends(get_session)
+    item_id: int, 
+    qa_in: QuestionAnswerCreate,
+    session: AsyncSession = Depends(get_session)
 ):
-    # Pass the item_id from the URL into your CRUD function
-    return await crud_item.create_question_answer(db, qa_data, item_id)
+    return await crud_item.create_question_answer(session, qa_in, item_id)
 
-@app.get("/items/{item_id}/questions", response_model=list[QuestionAnswer])
+@app.get("/items/{item_id}/questions", response_model=list[QuestionAnswerRead])
 async def read_questions_for_item(
     item_id: int,
     db: AsyncSession = Depends(get_session)
