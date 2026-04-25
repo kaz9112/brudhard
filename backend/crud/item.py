@@ -16,6 +16,12 @@ async def get_items(session: AsyncSession):
     result = await session.execute(statement)
     return result.scalars().all()
 
+async def get_item_by_id(session: AsyncSession, item_id: int):
+    # Select the Item where the ID matches
+    statement = select(Item).where(Item.id == item_id)
+    result = await session.execute(statement)
+    return result.scalar_one_or_none()
+
 async def create_question_answer(session: AsyncSession, qa_data: QuestionAnswer, item_id: int):
     # 1. Convert the Pydantic model to a dictionary
     data_dict = qa_data.model_dump(exclude={"id", "item_id"})
@@ -33,3 +39,9 @@ async def get_question_answers_by_item(session: AsyncSession, item_id: int):
     statement = select(QuestionAnswer).where(QuestionAnswer.item_id == item_id)
     result = await session.execute(statement)
     return result.scalars().all()
+
+async def get_question_by_id(session: AsyncSession, question_id: int):  
+    # Select the Item where the ID matches
+    statement = select(QuestionAnswer).where(QuestionAnswer.id == question_id)
+    result = await session.execute(statement)
+    return result.scalar_one_or_none()

@@ -32,6 +32,14 @@ async def create_new_item(item: ItemCreate, db: AsyncSession = Depends(get_sessi
 async def read_items(db: AsyncSession = Depends(get_session)):
     return await crud_item.get_items(db)
 
+@app.get("/items/{item_id}", response_model=ItemRead)
+async def read_single_item(item_id: int, db: AsyncSession = Depends(get_session)):
+    item = await crud_item.get_item_by_id(db, item_id)
+    if not item:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
+
 @app.post("/items/{item_id}/questions", response_model=QuestionAnswerRead)
 async def create_new_question(
     item_id: int, 
@@ -47,3 +55,11 @@ async def read_questions_for_item(
 ):
     # Pass the item_id to filter the questions
     return await crud_item.get_question_answers_by_item(db, item_id)
+
+@app.get("/items/{item_id}/questions/{question_id}", response_model=QuestionAnswerRead)
+async def read_single_question(question_id:int, db: AsyncSession = Depends(get_session)):
+    item = await crud_item.get_question_by_id(db, question_id)
+    if not item:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
