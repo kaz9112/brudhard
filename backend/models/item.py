@@ -54,8 +54,6 @@ class Item(ItemBase, table=True):
         ),
     )
 
-
-
 class QuestionAnswer(QuestionAnswerBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     question: Optional[str] = None
