@@ -2,12 +2,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from backend.models.item import *
 from sqlalchemy.orm import selectinload
+# from ..llm import llm_main
 
 async def create_item(session: AsyncSession, item_data: ItemCreate):
+    desc = item_data.description
     db_item = Item.model_validate(item_data) 
-    
     session.add(db_item)
-    await session.commit()
+
+    new_embed = EmbeddedText(
+        embedding=desc,
+        item=db_item,    
+    )
+    session.add(new_qa)
+
+    await session.commit()  
     await session.refresh(db_item)
     return db_item
 

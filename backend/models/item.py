@@ -8,12 +8,12 @@ class ItemBase(SQLModel):
     description: Optional[str] = None
 
 class QuestionAnswerBase(SQLModel):
-    question: Optional[str] = None
     answer: Optional[str] = None
 
 # --- API SCHEMAS (What the user sends/receives) ---
 class ItemCreate(ItemBase):
     """Schema for creating an item (No ID needed)"""
+    # initial_qa: Optional[QuestionAnswerCreate] = None
     pass
 
 class ItemRead(ItemBase):
@@ -34,25 +34,11 @@ class QuestionAnswerRead(QuestionAnswerBase):
 class Item(ItemBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     title: str
-    description: Optional[str] = None
-
-    embedding: Optional[list[float]] = Field(
-        default=None,
-        sa_column=Column(Vector(768)) 
-    )
+    description: str
 
     # Relationship to link back to QuestionAnswer
     questions: list["QuestionAnswer"] = Relationship(back_populates="item")
-
-    __table_args__ = (
-        Index(
-            "ix_item_embedding",
-            "embedding",
-            postgresql_using="hnsw",
-            postgresql_with={"m": 16, "ef_construction": 64},
-            postgresql_ops={"embedding": "vector_cosine_ops"},
-        ),
-    )
+    embeddings: list["EmbeddedText"] = Relationship(back_populates="item")
 
 class QuestionAnswer(QuestionAnswerBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -64,3 +50,27 @@ class QuestionAnswer(QuestionAnswerBase, table=True):
     
     # Relationship to link back to Item
     item: Optional[Item] = Relationship(back_populates="questions")
+
+class EmbeddedText(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    embedding: Optional[list[float]] = Field(
+        default=None,
+        sa_column=Column(Vector(768)) 
+    )
+    
+    # The Foreign Key: points to the 'id' of the Item table
+    item_id: int = Field(default=None, foreign_key="item.id")
+    
+    # Relationship to link back to Item
+    item: Optional[Item] = Relationship(back_populates="embeddings")
+
+    __table_args__ = (
+        Index(
+            "ix_item_embedding",
+
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_with={"m": 16, "ef_construction": 64},
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+        ),
+    )
