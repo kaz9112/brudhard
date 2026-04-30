@@ -57,7 +57,11 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection, 
+        target_metadata=target_metadata,
+        include_object=include_object
+        )
 
     with context.begin_transaction():
         context.run_migrations()
@@ -80,6 +84,11 @@ async def run_async_migrations() -> None:
 
     await connectable.dispose()
 
+def include_object(object, name, type_, reflected, compare_to):
+    # Tell Alembic to IGNORE the LangChain vector tables
+    if type_ == "table" and name in ["embedded_text"]:
+        return False
+    return True
 
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""

@@ -18,8 +18,8 @@ sqlmodel==0.0.38
 uvloop==0.22.1
 watchfiles==1.1.1
 websockets==16.0
-pgvector==0.4.2
 langchain-google-genai==4.2.2
 langchain-openai==1.2.0
 langchain-text-splitters==1.1.2
 langgraph==1.1.9
+langchain-postgres==0.0.17

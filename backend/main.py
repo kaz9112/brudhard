@@ -1,11 +1,23 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.models.session import get_session
 from backend.models.item import *
 from backend.crud import item as crud_item
+from backend.core.vector_db import init_vector_db
 from fastapi.middleware.cors import CORSMiddleware
+from backend.llm.vector_store import ensure_vector_indices
 
-app = FastAPI(title="Fastapi AI Backend")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # --- STARTUP ---
+    print("Initializing Vector Database...")
+    await ensure_vector_indices()    
+    print("Vector Database Ready.")
+    yield
+    # --- SHUTDOWN ---
+
+app = FastAPI(title="Fastapi AI Backend", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

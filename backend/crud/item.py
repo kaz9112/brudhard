@@ -6,18 +6,14 @@ from backend.llm.llm_main import run_embedding_workflow
 
 async def create_item(session: AsyncSession, item_data: ItemCreate):
     desc = item_data.description
-    db_item = Item.model_validate(item_data) 
+    db_item = Item.model_validate(item_data)
     session.add(db_item)
 
-    embedding = run_embedding_workflow(desc)
-    
-    new_embed = EmbeddedText(
-        embedding=embedding,
-        item=db_item,    
-    )
-    
-    session.add(new_embed)
+    # Flush ensures the DB generates an ID for db_item without finishing the transaction
+    await session.flush()
 
+    run_embedding_workflow(desc, db_item.id)
+    
     await session.commit()  
     await session.refresh(db_item)
     return db_item

@@ -1,18 +1,21 @@
 # agents.py
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_postgres.vectorstores import PGVector
+from backend.core.vector_db import engine
+from backend.core.config import settings
 from langgraph.graph import MessagesState
 from backend.llm.config import settings
 from backend.llm.utils import filter_reasoning_content
 from typing_extensions import TypedDict
 from langgraph.graph import StateGraph, MessagesState, START, END
 
-
 class State(TypedDict):
     query : str
     doc_vectors: list
+    context: str
+    item_id: int
     
-
 def build_embedding():
     # Define Node
     workflow = StateGraph(State)
@@ -21,6 +24,18 @@ def build_embedding():
     # Define Edge
     workflow.add_edge(START, "agent")
     workflow.add_edge("agent", END)
+    return workflow.compile()
+
+def build_query():
+    # Define Node
+    workflow = StateGraph(State)
+    workflow.add_node("agent", embedding_query)
+    workflow.add_node("answer", get_answer)
+
+    # Define Edge
+    workflow.add_edge(START, "agent")
+    workflow.add_edge("agent", "answer")
+    workflow.add_edge("answer", END)
     return workflow.compile()
 
 def get_embeddings_model():
@@ -33,9 +48,31 @@ def get_embeddings_model():
 def embedding_docs(state: State):
     embeddings = get_embeddings_model()
     text = state["query"]
-    doc_vectors = embeddings.embed_documents([text])
+    from backend.llm.vector_store import vector_store
+    vector_store.add_texts(
+        texts=[text],
+        metadatas=[{"item_id": state["item_id"]}]
+    )
+    return
 
-    return {"doc_vectors": doc_vectors}
+def embedding_query(state: State):
+    embeddings = get_embeddings_model()
+    text = state["query"]
+    context = embeddings.embed_query(text)
+
+    return {"context": context}
+
+def get_answer(state: State):
+    """
+    Primary agent node that calls the LLM and cleans reasoning tags.
+    """
+    question_with_context = "**CONTEXT:**\n" + state["context"] + "\n\n**Question:**\n" + state["query"]
+
+    response = llm.invoke(question_with_context)
+    # print(response)
+    clean_response = filter_reasoning_content(response)   
+    return {"messages": [clean_response]}
+
 
 def chat_process(model="gemma-4-26b-a4b-it", temperature=0.7, timeout=60):
     try:
@@ -71,11 +108,11 @@ def call_model(state: State):
     clean_response = filter_reasoning_content(response)   
     return {"messages": [clean_response]}
 
-def call_model(state: State):
-    """
-    Primary agent node that calls the LLM and cleans reasoning tags.
-    """
-    response = llm.invoke(state["messages"])
-    # print(response)
-    clean_response = filter_reasoning_content(response)   
-    return {"messages": [clean_response]}
+# def call_model(state: State):
+#     """
+#     Primary agent node that calls the LLM and cleans reasoning tags.
+#     """
+#     response = llm.invoke(state["messages"])
+#     # print(response)
+#     clean_response = filter_reasoning_content(response)   
+#     return {"messages": [clean_response]}
