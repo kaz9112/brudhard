@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.models.session import get_session
 from backend.models.item import *
@@ -37,8 +37,12 @@ def health_check():
 #     return {"message": "Database session injected!"}
 
 @app.post("/items", response_model=ItemRead)
-async def create_new_item(item: ItemCreate, db: AsyncSession = Depends(get_session)):
-    return await crud_item.create_item(db, item)
+async def create_new_item(
+    item: ItemCreate, 
+    background_tasks: BackgroundTasks, 
+    db: AsyncSession = Depends(get_session)
+):
+    return await crud_item.create_item(db=db, item=item, background_tasks=background_tasks)
 
 @app.get("/items", response_model=list[ItemRead])
 async def read_items(db: AsyncSession = Depends(get_session)):
@@ -56,9 +60,15 @@ async def read_single_item(item_id: int, db: AsyncSession = Depends(get_session)
 async def create_new_question(
     item_id: int, 
     qa_in: QuestionAnswerCreate,
-    session: AsyncSession = Depends(get_session)
+    background_tasks: BackgroundTasks,
+    session: AsyncSession = Depends(get_session),
 ):
-    return await crud_item.create_question_answer(session, qa_in, item_id)
+    return await crud_item.create_question_answer(
+        session=session,
+        qa_data=qa_in,
+        item_id=item_id,
+        background_tasks=background_tasks
+    )
 
 @app.get("/items/{item_id}/questions", response_model=list[QuestionAnswerRead])
 async def read_questions_for_item(

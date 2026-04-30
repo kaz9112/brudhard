@@ -9,7 +9,7 @@ class ItemBase(SQLModel):
     description: Optional[str] = None
 
 class QuestionAnswerBase(SQLModel):
-    answer: Optional[str] = None
+    question: Optional[str] = None
 
 # --- API SCHEMAS (What the user sends/receives) ---
 class ItemCreate(ItemBase):
