@@ -1,4 +1,3 @@
-import sys
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # loader = PyPDFLoader("pdf_test.pdf")
