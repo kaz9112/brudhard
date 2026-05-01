@@ -85,7 +85,7 @@ const ItemsPage: React.FC = () => {
             }}>
               <span><strong>{item.title}</strong></span>
               <p style={{ color: '#666', fontSize: '13px', margin: '5px 0 0' }}>
-                {item.description}
+                {item.id}
               </p>
             </li>
           ))}

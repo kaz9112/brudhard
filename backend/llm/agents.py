@@ -50,7 +50,7 @@ def get_embeddings_model():
 def embedding_docs(state: State):
     embeddings = get_embeddings_model()
     text = state["query"]
-    metadatas = {["item_id"]: state["item_id"]} * len(text)
+    metadatas = [{"item_id": state["item_id"]}] * len(text)
     vector_store.add_texts(
         texts=text,
         metadatas=metadatas,
@@ -63,7 +63,7 @@ def embedding_query(state: State):
     search_filter = {"item_id": target_id}
     docs = vector_store.similarity_search(
         query_text,
-        k=2,
+        k=5,
         filter=search_filter
     )
 
@@ -81,15 +81,14 @@ def get_answer(state: State):
     print(f"clean_response_type: \n{type(clean_response.content)}")
     return {"answer": clean_response.content}
 
-
-def chat_process(model="gemma-4-26b-a4b-it", temperature=0.7, timeout=60):
+def chat_process(model="gemini-3.1-flash-lite-preview", temperature=1, timeout=180):
     try:
         llm_chat = ChatOpenAI(
             model=model,
             openai_api_key=settings.gemini_api_key,
             openai_api_base="https://generativelanguage.googleapis.com/v1beta/openai/",
             temperature=temperature,
-            max_tokens=120,
+            max_tokens=320,
             timeout=timeout,
         )
         return llm_chat
@@ -116,12 +115,3 @@ def call_model(state: State):
     # print(response)
     clean_response = filter_reasoning_content(response)   
     return {"messages": [clean_response]}
-
-# def call_model(state: State):
-#     """
-#     Primary agent node that calls the LLM and cleans reasoning tags.
-#     """
-#     response = llm.invoke(state["messages"])
-#     # print(response)
-#     clean_response = filter_reasoning_content(response)   
-#     return {"messages": [clean_response]}
