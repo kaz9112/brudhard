@@ -4,7 +4,7 @@ from backend.models.item import QuestionAnswer
 from sqlalchemy import update
 
 # Compile the app instance once at the module level
-def run_embedding_workflow(query: str, item_id: int) -> list:
+def run_embedding_workflow(query: list, item_id: int) -> list:
     """
     Entry point for external services (like Celery).
     Takes a string, runs the graph, and returns the final AI response string.

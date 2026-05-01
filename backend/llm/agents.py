@@ -12,7 +12,7 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 from backend.llm.vector_store import vector_store
 
 class State(TypedDict):
-    query : str
+    query : list
     doc_vectors: list
     context: str
     item_id: int
@@ -50,9 +50,10 @@ def get_embeddings_model():
 def embedding_docs(state: State):
     embeddings = get_embeddings_model()
     text = state["query"]
+    metadatas = {["item_id"]: state["item_id"]} * len(text)
     vector_store.add_texts(
-        texts=[text],
-        metadatas=[{"item_id": state["item_id"]}]
+        texts=text,
+        metadatas=metadatas,
     )
     return
 

@@ -3,12 +3,15 @@ from sqlmodel import select
 from backend.models.item import *
 from sqlalchemy.orm import selectinload
 from backend.llm.llm_main import run_embedding_workflow, run_answer_workflow
+from backend.llm.pre_process import split_text
 from fastapi import BackgroundTasks
 
 async def create_item(session: AsyncSession, item_data: ItemCreate, background_tasks: BackgroundTasks):
-    desc = item_data.description
+    raw_desc = item_data.description
     db_item = Item.model_validate(item_data)
     session.add(db_item)
+
+    desc = split_text(raw_desc)
 
     # Flush ensures the DB generates an ID for db_item without finishing the transaction
     await session.flush()

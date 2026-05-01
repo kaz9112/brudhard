@@ -40,9 +40,9 @@ def health_check():
 async def create_new_item(
     item: ItemCreate, 
     background_tasks: BackgroundTasks, 
-    db: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session)
 ):
-    return await crud_item.create_item(db=db, item=item, background_tasks=background_tasks)
+    return await crud_item.create_item(session=session, item_data=item, background_tasks=background_tasks)
 
 @app.get("/items", response_model=list[ItemRead])
 async def read_items(db: AsyncSession = Depends(get_session)):
